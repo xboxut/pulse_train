@@ -1,0 +1,213 @@
+-- **************CODE EXAMPLE FOR THE PULSE TRAIN SIMULATOR *****************
+
+-- THIS IS A SIMPLE LINE COMMENT
+
+--[[ THIS IS A
+	MULTILINE
+		COMMENT
+]]
+
+
+
+--[[ LUA BUILD-IN KEYWORDS !!!!!!!
+
+
+*********for statement******
+
+for variable=start,end,step do
+
+code to loop
+
+end
+
+****************************
+
+********* while statement***
+
+while condition do
+
+code to loop
+
+end
+
+****************************
+
+********* is statement *****
+
+if condition then
+
+code to execute
+
+end
+---------
+if condition then
+
+else
+
+end
+-----------
+if condition1 then
+
+elseif condition2 then
+
+elseif condition3 then
+
+end
+
+****************************
+
+********* print variable****
+i=3
+print(i)
+
+****************************
+
+*********execute a sub script**
+dofile(filename)
+*******************************
+
+*********defining a lua function**
+
+function name(arg1,arg2)
+
+code to execute
+
+return variable
+
+end
+
+**********************************
+
+]]
+
+
+--GENERAL PROPERTIES OF THE SIMULATION
+
+dt=XX  -- 
+
+save_basename='base_name' -- base of the name for the saves
+
+verbose='true' -- true/false   set on/off the console messages during simulation    
+
+memory_use='full' -- 'full'/'medium'/'low'/'low_speed'  -> Choosing the memory footprint of the simulation.
+		  -- the 'full' option will compute the convolution of pulse train with a fft requiring at leat a double amount of memory.
+		  -- the medium option will compute a copying like convolution, the dirac data and the final pulse shape will be stored. The computing speed is lower.
+		  -- the low option will use keep in memory only the final pulse train. The convolution is performed with a quite long double loop. Low speed.
+		  -- the 'low/speed' option will use the fft way of computing convolution. ONly the final result will be kept 	
+
+register_genprop()  -- function for registering the chosen properties of the simulation
+		    -- Used for code speed up. If properties are the same during the whole
+		    -- simulation, no need to get proper global variables from the table.
+
+
+-- *************** GENERATION OF PULSE SHAPE****************
+
+pulshape_def='predefined' -- how to generate the pulse shape 'file' 'predefined'
+
+
+-- %%%%%%%%%%%%%%%% generation of predefined pulse shape %%%%%%
+
+predef_pulshape='name'  -- choose of the pulse shape to generate
+
+pulshape_norm='amp'  -- 'amp'/'charge' choice of normalisation:
+			    -- 'amp' max amplitude =1
+			    -- 'charge' pulse shape area=1
+
+predef_pulshape_len='name'  -- choose of the pulse shape to generate
+
+
+predef_pulshape_len=1000  -- length of the pulse shape to generate
+predef_pulshape_par1=1.0  -- parameter of the predefined pulseshape.
+
+
+
+--  %%%%%%%%%%%%%%%%%%generation of pulse shape from files %%%%
+pulshape_file='filename' -- If the pulse shape is defined by a file, give the filename
+
+
+-- %%%%%%%%%%% creation of the pulseshape  %%%%%%%%%%%%%%%
+ 
+register_pulshapeprop()  -- function for registering properties of the pulse shape
+			 -- speed up computation as there is no need for getting properties at every pulse train generation
+generate_pulshape()
+
+
+--***********************************************************
+
+--*************GENERATION OF PULSE TRAIN ********************
+
+--%%%%%%%%%%%%% General properties of the pulse train 
+
+pultrain_duration=1.0
+pultrain_arraylen=100
+
+
+--%%%%%%%%%%%% Rate definition %%%%%%%%%%%%
+
+pultrain_homogen_rate=true -- true/false say if the event rate is homogeneous or not
+
+pultrain_rate=10e9 -- definition of the homogeneous rate is pultrain_homogen_rate is true
+
+
+-- Possibility of defining the pulse rate with different way:
+-- **One simple way is to load the pulse rate vector from a file
+-- ** On other way is to use dedicated function to define key points of the pulse rate matrix and then to interpolate data
+
+
+pultrain_rate_file='filename' -- definition of the file name that contain the pulse train rate
+
+
+
+-- procedure for manual inhomogeneous rate definition:
+
+init_man_ptrate_def() -- Initialise the definition of inhomogeneous event rate by hand (get the program ready to handle data -> getting the data length in an anticiped manner)
+
+set_man_ptrate_point(x,y) -- Define a given point of the inhomogeneous rate array. The x is the index (multiple of dt) while the y is the given rate
+
+interp_man_ptrate() -- While the whole points are defined, the linear interpolation is performed. If the boundary points are undefined, 0 values are assumed!
+
+end_man_ptrate_def() -- end of the manual definition of inhomogeneous event rate ( it allows to set the proper script interpreter flags, and to set the rate pointer properly)
+
+
+
+--%%%%%%%%%%%%%%%%amplitude distribution definition %%%%%%%%%%%%%%%%
+
+-- **** predefined amplitude distribution definition
+
+pultrain_ampdist_predefined=true	-- true/ false -> selection between a predefined amplitude distribution and a user defined ones.
+
+pultrain_predef_ampdist='name'		-- selection of a predefined amplitude distribution thanks to its name.
+pultrain_predef_ampdist_par1=1.0	-- definition of predefined amplitude distribution parameter 1.	
+pultrain_predef_ampdist_par2=1.0	-- definition of predefined amplitude distribution parameter 2.	
+pultrain_predef_ampdist_par3=1.0	-- definition of predefined amplitude distribution parameter 3.	
+
+-- **** load of amplitude distribution from file
+
+pultrain_ampdist_file='filename'	-- definition of the file that contain the amplitude distribution data
+
+
+--%%%%%%%%%%%%%%%% ADD MORE SUBSECTION IS NOISE DEFINITION IS NEEDED %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+--%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+register_pultrain_prop() 		-- function for registering properties of the pulse train
+			 		-- speed up computation as there is no need for getting properties at every pulse train generation
+
+
+generate_pultrain()			-- function used to generate the ptrain			
+
+
+
+save_pultrain()				-- function to save the raw pulse train on the hard drive
+save_pultrain_dirac()			-- function to save the data containing only dirac on the hard drive. This can be only used if the High and medium memory footprint are used
+
+
+
+save_pultrain_rate()			-- Save the data corresponding to the event rate. It will be an array if the rate is inhomogeneous, and a simple number if not
+save_pultrain_ampdist()			-- Save the amplitude distribution defined. 
+
+process_pultrain(args....)		-- TO BE DEFINED MORE PROPERLY WITH ZSOLT.
+
+
+ 
